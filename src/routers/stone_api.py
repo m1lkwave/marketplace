@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.schemas.stone_model import StoneGet, StoneCreate
 from src.db.connection import get_async_session
-from src.repositories.stones_repository import StoneRepository, SqlAlchemyStoneRepository
+from src.repositories.stones import SqlAlchemyStoneRepository, StoneRepository
+from src.schemas.stone_model import StoneCreate, StoneGet
+from src.services.stones import StoneService
 
 stone_router = APIRouter(
     prefix="/api/v1/stone",
@@ -13,34 +14,18 @@ stone_router = APIRouter(
 async def get_stone_repository(session: AsyncSession = Depends(get_async_session)) -> StoneRepository:
     return SqlAlchemyStoneRepository(session)
 
+async def get_stone_service(repo: StoneRepository = Depends(get_stone_repository)) -> StoneService:
+    return StoneService(repo)
+
 @stone_router.get("/all", response_model=list[StoneGet])
-async def get_stones(repo: StoneRepository=Depends(get_stone_repository)):
-    return await repo.get_stones()
+async def get_stones(service: StoneService=Depends(get_stone_service)):
+    return await service.get_stones()
 
 @stone_router.get("/{stonename}", response_model=StoneGet)
-async def get_stone(stonename: str, id: int | None = None, repo: StoneRepository=Depends(get_stone_repository)):
-    if id is not None:
-        stone = await repo.get_stone_from_name_id(stonename, id)
-
-        if stone is None:
-            raise HTTPException(
-                status_code=404,
-                detail="Stone not found"
-            )
-        return stone
-
-    else:
-        stone = await repo.get_stone_from_name(stonename)
-        
-        if stone is None:
-            raise HTTPException(
-                status_code=404,
-                detail="Stone not found"
-            )
-
-        return stone
+async def get_stone(stonename: str, service: StoneService=Depends(get_stone_service)):
+    return await service.get_stone(stonename)
     
 
 @stone_router.post("/new", response_model=StoneCreate, status_code=201)
-async def create_stone(stone: StoneCreate, repo: StoneRepository=Depends(get_stone_repository)):
-    return await repo.create_stone(stone)
+async def create_stone(stone: StoneCreate, service: StoneService=Depends(get_stone_service)):
+    return await service.create_stone(stone)

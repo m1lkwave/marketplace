@@ -1,5 +1,7 @@
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
+
 from src.db.base import Base
+
 
 class Users(Base):
     __tablename__ = "user"

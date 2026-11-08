@@ -1,5 +1,7 @@
 from decimal import Decimal
+
 from pydantic import BaseModel, ConfigDict, Field
+
 
 class StoneGet(BaseModel):
     id: int | None = None

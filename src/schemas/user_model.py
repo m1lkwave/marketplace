@@ -1,4 +1,5 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
 
 class UserCreate(BaseModel):
     username: str = Field(min_length=2, max_length=50)

@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy.orm import DeclarativeBase
+
 
 class DbSettting(BaseSettings):
     db_host: str
