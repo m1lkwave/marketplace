@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Annotated
+from authx import TokenPayload
 
 from src.db.connection import get_async_session
 from src.repositories.users import SqlAlchemyUsersRepository, UserRepository
 from src.schemas.user_model import UserCreate, UserGet
 from src.services.users import UserService
+from src.authorization.jwt import security
 
 user_router = APIRouter(
     prefix="/api/v1/user",
@@ -20,6 +23,17 @@ async def get_user_service(repo: SqlAlchemyUsersRepository=Depends(get_user_repo
 @user_router.get("/", response_model=list[UserGet])
 async def get_all_users(service: UserService = Depends(get_user_service)):
     return await service.get_users()
+
+@user_router.get("/me", response_model=UserGet)
+async def get_me(
+    payload: Annotated[
+        TokenPayload,
+        Depends(security.access_token_required),
+    ],
+    service: UserService = Depends(get_user_service)
+):
+    user_id = int(payload.sub)
+    return await service.get_user_by_id(user_id)
 
 @user_router.get("/{username}", response_model=UserGet)
 async def get_user(

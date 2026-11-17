@@ -1,12 +1,14 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class DbSettting(BaseSettings):
+class Settting(BaseSettings):
     db_host: str
     db_port: str
     db_name: str
     db_user: str
     db_password: str
+
+    jwt_secret_key: str
 
     @property
     def DATABASE_URL(self):
@@ -16,5 +18,5 @@ class DbSettting(BaseSettings):
         env_file=".env",
     )
 
-settings = DbSettting()
+settings = Settting()
 

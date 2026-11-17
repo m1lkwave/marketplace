@@ -3,3 +3,6 @@ class StoneNotFoundError(Exception):
 
 class UserNotFoundError(Exception):
     pass
+
+class InvalidCredentialsError(Exception):
+    pass
