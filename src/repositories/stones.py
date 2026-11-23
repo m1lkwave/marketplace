@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.models.stone_table import Stone
+from src.db.models.stone_image_table import StoneImage
 from src.schemas.stone_model import StoneCreate, StoneGet
 
 
@@ -15,10 +16,18 @@ class StoneRepository(ABC):
 
     @abstractmethod
     async def get_stones(self) -> list[Stone]:
+        pass
+
+    @abstractmethod
+    async def get_stone_from_id(self, stone_id: int) -> Stone | None:
         pass 
 
     @abstractmethod
     async def create_stone(self, stonename: StoneCreate) -> Stone:
+        pass
+
+    @abstractmethod
+    async def create_stone_image(self, stone_id: int, object_key: str,) -> StoneImage:
         pass
 
 class SqlAlchemyStoneRepository(StoneRepository):
@@ -30,9 +39,13 @@ class SqlAlchemyStoneRepository(StoneRepository):
         result = await self.session.execute(select(Stone))
         return list(result.scalars().all())
 
-    async def get_stone_from_name(self, stonename: StoneGet) -> Stone:
+    async def get_stone_from_name(self, stonename: str) -> Stone | None:
         result = await self.session.execute(select(Stone).where(Stone.stone_name == stonename))
         return result.scalar_one_or_none()
+
+    async def get_stone_from_id(self, stone_id: int) -> Stone | None:
+        result = await self.session.execute(select(Stone).where(Stone.id == stone_id))
+        return result.scalar_one_or_none()    
 
     async def create_stone(self, stone: StoneCreate) -> Stone:
         new_stone = Stone(**stone.model_dump())
@@ -40,3 +53,13 @@ class SqlAlchemyStoneRepository(StoneRepository):
         await self.session.commit()
         await self.session.refresh(new_stone)
         return new_stone
+
+    async def create_stone_image(
+            self, 
+            stone_id: int, 
+            object_key: str,
+    ) -> StoneImage:
+        new_image = StoneImage(stone_id=stone_id, object_key=object_key)
+        self.session.add(new_image)
+        await self.session.flush()
+        return new_image

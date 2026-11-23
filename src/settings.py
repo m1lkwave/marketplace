@@ -10,12 +10,18 @@ class Settting(BaseSettings):
 
     jwt_secret_key: str
 
+    s3_endpoint: str
+    s3_access_key: str
+    s3_secret_key: str
+    s3_bucket: str
+
     @property
     def DATABASE_URL(self):
         return f"postgresql+asyncpg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
 
     model_config = SettingsConfigDict(
         env_file=".env",
+        extra="ignore"
     )
 
 settings = Settting()
