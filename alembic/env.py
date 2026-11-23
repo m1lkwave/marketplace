@@ -14,6 +14,7 @@ from src.settings import settings
 from src.db.base import Base
 from src.db.models.user_table import Users
 from src.db.models.stone_table import Stone
+from src.db.models.stone_image_table import StoneImage
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

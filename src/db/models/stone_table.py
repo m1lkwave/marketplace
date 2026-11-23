@@ -1,11 +1,14 @@
 import datetime
 from decimal import Decimal
-from typing import Annotated
+from typing import Annotated, TYPE_CHECKING
 
 from sqlalchemy import DateTime, Numeric, func, text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.base import Base
+
+if TYPE_CHECKING:
+    from src.db.models.stone_image_table import StoneImage
 
 created_at = Annotated[datetime.datetime, mapped_column(
     DateTime, 
@@ -26,5 +29,6 @@ class Stone(Base):
     stone_name: Mapped[str] = mapped_column(unique=True, nullable=False)
     price: Mapped[Decimal] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
     created_at: Mapped[created_at]
-    updated_at: Mapped[updated_at] 
+    updated_at: Mapped[updated_at]
+    images: Mapped[list["StoneImage"]] = relationship(back_populates="stone") 
 
